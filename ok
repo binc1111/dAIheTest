@@ -1,1 +1,16 @@
+from llm.base import AgentClient
+import chainlit as cl
+from pydantic_ai.models.gemini import GeminiModel
+from pydantic_ai.providers.google_gla import GoogleGLAProvider
 
+provider = GoogleGLAProvider(api_key=os.getenv("GEMINI_API_KEY"))
+model = GeminiModel('gemini-2.0-flash', provider=provider)
+agent = AgentClient(
+    model=model,
+    
+    system_prompt="You are a friendly virtual assistant.Your task is to greet users in a warm, polite, and welcoming way.",
+).create_agent()
+
+async def main(message: cl.Message):
+    response = await agent.run((message.content))
+    await cl.Message(content=str(response.output)).send()
